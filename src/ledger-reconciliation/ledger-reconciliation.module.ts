@@ -10,6 +10,7 @@ import { ReconciliationJob } from './reconciliation.job';
 import { ReconciliationController } from './reconciliation.controller';
 import { ReconciliationDiscrepanciesCounter } from './reconciliation.metrics';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { QueueService } from '../queues/queue.service';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     StellarBalanceReconciliationService,
     ReconciliationJob,
     ReconciliationDiscrepanciesCounter,
+    QueueService,
   ],
   exports: [LedgerReconciliationService, StellarBalanceReconciliationService],
 })

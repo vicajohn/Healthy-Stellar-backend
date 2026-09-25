@@ -89,6 +89,50 @@ export class NotificationsService {
     });
   }
 
+  emitDiagnosisCreated(actorId: string, diagnosisId: string, metadata?: Record<string, any>): void {
+    this.emitEvent({
+      eventType: NotificationEventType.DIAGNOSIS_CREATED,
+      actorId,
+      resourceId: diagnosisId,
+      timestamp: new Date(),
+      metadata,
+    });
+  }
+
+  emitDiagnosisSeverityEscalated(actorId: string, diagnosisId: string, metadata?: Record<string, any>): void {
+    this.emitEvent({
+      eventType: NotificationEventType.DIAGNOSIS_SEVERITY_ESCALATED,
+      actorId,
+      resourceId: diagnosisId,
+      timestamp: new Date(),
+      metadata,
+    });
+  }
+
+  emitDiagnosisStatusConfirmed(actorId: string, diagnosisId: string, metadata?: Record<string, any>): void {
+    this.emitEvent({
+      eventType: NotificationEventType.DIAGNOSIS_STATUS_CONFIRMED,
+      actorId,
+      resourceId: diagnosisId,
+      timestamp: new Date(),
+      metadata,
+    });
+  }
+
+  /**
+   * Emit a proactive quota warning when a tenant crosses a usage threshold
+   * (Issue #954).
+   */
+  emitQuotaWarning(tenantId: string, quotaType: string, metadata?: Record<string, any>): void {
+    this.emitEvent({
+      eventType: NotificationEventType.QUOTA_WARNING,
+      actorId: tenantId,
+      resourceId: quotaType,
+      timestamp: new Date(),
+      metadata,
+    });
+  }
+
   async notifyOnChainEvent(
     eventType: NotificationEventType,
     actorId: string,
@@ -221,6 +265,14 @@ export class NotificationsService {
           recordId: event.resourceId,
           timestamp,
         });
+        return;
+      case NotificationEventType.QUOTA_WARNING:
+        // Quota warnings are recorded in the tenant-quota near-limit registry;
+        // surface them here for realtime/ops visibility.
+        this.logger.warn(
+          `Quota warning for tenant ${event.actorId} (${event.resourceId}): ` +
+            `${JSON.stringify(event.metadata ?? {})}`,
+        );
         return;
       default:
         return;
