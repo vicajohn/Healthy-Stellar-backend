@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MedicalRbacController } from './controllers/medical-rbac.controller';
-import { EmergencyOverride } from './entities/emergency-override.entity';
-import { MedicalAuditLog } from './entities/medical-audit-log.entity';
-import { MedicalRbacGuard } from './guards/medical-rbac.guard';
-import { EmergencyOverrideService } from './services/emergency-override.service';
-import { MedicalAuditService } from './services/medical-audit.service';
-import { MedicalPermissionsService } from './services/medical-permissions.service';
+import { MedicalRbacController } from './medical-rbac.controller';
+import { EmergencyOverride } from '../entities/emergency-override.entity';
+import { MedicalAuditLog } from '../entities/medical-audit-log.entity';
+import { MedicalRbacGuard } from './medical-rbac.guard';
+import { EmergencyOverrideService } from './emergency-override.service';
+import { MedicalAuditService } from './medical-audit.service';
+import { MedicalPermissionsService } from './medical-permissions.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MedicalAuditLog, EmergencyOverride])],
