@@ -24,10 +24,12 @@ import {
 import { MedicalDepartment, MedicalPermission, MedicalRole } from '../enums/medical-roles.enum';
 import { MedicalRbacGuard } from './medical-rbac.guard';
 import { MedicalUser } from '../interfaces/medical-rbac.interface';
-import { EmergencyOverrideService } from './emergency-override.service';
-import { MedicalAuditService } from './medical-audit.service';
-import { MedicalPermissionsService } from './medical-permissions.service';
+import { EmergencyOverrideService } from '../services/emergency-override.service';
+import { MedicalAuditService } from '../services/medical-audit.service';
+import { MedicalPermissionsService } from '../services/medical-permissions.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('medical-rbac')
 @Controller('medical-rbac')
 @UseGuards(MedicalRbacGuard)
 export class MedicalRbacController {
