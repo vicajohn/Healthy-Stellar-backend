@@ -85,6 +85,7 @@ import { BedOccupancyModule } from './bed-occupancy/bed-occupancy.module';
 import { MedicalStaffModule } from './medical-staff/medical-staff.module';
 import { HealthcareMonitoringModule } from './healthcare-monitoring/healthcare-monitoring.module';
 import { User } from './auth/entities/user.entity';
+import { MigrationCliModule } from './Migration-CLI/migration-cli.module';
 
 @Module({
   imports: [
@@ -175,6 +176,7 @@ import { User } from './auth/entities/user.entity';
     MedicalStaffModule,
     EhrImportModule,
     HealthcareMonitoringModule,
+    MigrationCliModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
