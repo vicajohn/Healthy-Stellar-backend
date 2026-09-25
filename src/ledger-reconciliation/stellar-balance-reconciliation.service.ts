@@ -4,6 +4,7 @@ import { Repository, DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { LedgerReconciliationReport } from './ledger-reconciliation-report.entity';
+import { StellarLedgerEntry } from './stellar-ledger-entry.entity';
 import { NotificationsService } from '../notifications/services/notifications.service';
 
 interface AccountDetail {
@@ -26,6 +27,8 @@ export class StellarBalanceReconciliationService {
   constructor(
     @InjectRepository(LedgerReconciliationReport)
     private readonly reportRepo: Repository<LedgerReconciliationReport>,
+    @InjectRepository(StellarLedgerEntry)
+    private readonly ledgerEntryRepo: Repository<StellarLedgerEntry>,
     private readonly dataSource: DataSource,
     private readonly config: ConfigService,
     private readonly notifications: NotificationsService,
@@ -171,19 +174,24 @@ export class StellarBalanceReconciliationService {
 
   /**
    * Retrieves the internal ledger total for a Stellar account.
-   * Returns the sum of net confirmed payment amounts tracked in the database.
+   * Returns the sum of all confirmed payment amounts tracked in the database.
    */
   private async getInternalBalance(accountId: string): Promise<string> {
-    // Query the internal ledger: sum of all confirmed incoming payments minus outgoing
-    // for this Stellar account. Falls back to '0' when no ledger entries exist.
-    const result: Array<{ total: string }> = await this.dataSource.query(
-      `SELECT COALESCE(SUM(amount), 0)::text AS total
-       FROM stellar_ledger_entries
-       WHERE account_id = $1 AND status = 'confirmed'`,
-      [accountId],
-    ).catch(() => [{ total: '0' }]);
+    try {
+      const result = await this.ledgerEntryRepo
+        .createQueryBuilder('entry')
+        .select("COALESCE(SUM(entry.amount), 0)::text", 'total')
+        .where('entry.accountId = :accountId', { accountId })
+        .andWhere('entry.status = :status', { status: 'confirmed' })
+        .getRawOne<{ total: string }>();
 
-    return result[0]?.total ?? '0';
+      return result?.total ?? '0';
+    } catch (err: any) {
+      this.logger.error(
+        `Failed to query internal balance for ${accountId}: ${(err as Error).message}`,
+      );
+      return '0';
+    }
   }
 
   private async sendDiscrepancyAlert(report: LedgerReconciliationReport): Promise<void> {
